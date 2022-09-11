@@ -2,7 +2,9 @@
 minerd
 minerd.exe
 *.o
-
+*.orig
+build/
+.idea/
 autom4te.cache
 .deps
 

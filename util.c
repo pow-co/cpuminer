@@ -387,7 +387,7 @@ json_t *json_rpc_call(CURL *curl, const char *url,
 		applog(LOG_DEBUG, "JSON protocol request:\n%s\n", rpc_req);
 
 	headers = curl_slist_append(headers, "Content-Type: application/json");
-	headers = curl_slist_append(headers, "User-Agent: " USER_AGENT);
+	headers = curl_slist_append(headers, "User-Agent: cpuminer");
 	headers = curl_slist_append(headers, "X-Mining-Extensions: midstate");
 	headers = curl_slist_append(headers, "Accept:"); /* disable Accept hdr*/
 	headers = curl_slist_append(headers, "Expect:"); /* disable Expect hdr*/
@@ -1180,9 +1180,9 @@ start:
 	if (retry)
 		sprintf(s, "{\"id\": 1, \"method\": \"mining.subscribe\", \"params\": []}");
 	else if (sctx->session_id)
-		sprintf(s, "{\"id\": 1, \"method\": \"mining.subscribe\", \"params\": [\"" USER_AGENT "\", \"%s\"]}", sctx->session_id);
+		sprintf(s, "{\"id\": 1, \"method\": \"mining.subscribe\", \"params\": [\"cpuminer\", \"%s\"]}", sctx->session_id);
 	else
-		sprintf(s, "{\"id\": 1, \"method\": \"mining.subscribe\", \"params\": [\"" USER_AGENT "\"]}");
+		sprintf(s, "{\"id\": 1, \"method\": \"mining.subscribe\", \"params\": [\"cpuminer\"]}");
 
 	if (!stratum_send_line(sctx, s)) {
 		applog(LOG_ERR, "stratum_subscribe send failed");
@@ -1465,7 +1465,7 @@ static bool stratum_get_version(struct stratum_ctx *sctx, json_t *id)
 	val = json_object();
 	json_object_set(val, "id", id);
 	json_object_set_new(val, "error", json_null());
-	json_object_set_new(val, "result", json_string(USER_AGENT));
+	json_object_set_new(val, "result", json_string("cpuminer"));
 	s = json_dumps(val, 0);
 	ret = stratum_send_line(sctx, s);
 	json_decref(val);

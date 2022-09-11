@@ -720,7 +720,7 @@ static bool submit_upstream_work(CURL *curl, struct work *work)
 
 	if (have_stratum) {
 		uint32_t ntime, nonce;
-		char ntimestr[9], noncestr[9], *xnonce2str, *req;
+		char ntimestr[9], noncestr[9], workstr[161], *xnonce2str, *req;
 
 		le32enc(&ntime, work->data[17]);
 		le32enc(&nonce, work->data[19]);
@@ -728,6 +728,8 @@ static bool submit_upstream_work(CURL *curl, struct work *work)
 		bin2hex(noncestr, (const unsigned char *)(&nonce), 4);
 		xnonce2str = abin2hex(work->xnonce2, work->xnonce2_len);
 		req = malloc(256 + strlen(rpc_user) + strlen(work->job_id) + 2 * work->xnonce2_len);
+		bin2hex(workstr,(const unsigned char *)work->data,80);
+		applog(LOG_DEBUG, "Final work string: %s",workstr);
 		sprintf(req,
 			"{\"method\": \"mining.submit\", \"params\": [\"%s\", \"%s\", \"%s\", \"%s\", \"%s\"], \"id\":4}",
 			rpc_user, work->job_id, xnonce2str, ntimestr, noncestr);
@@ -1484,7 +1486,7 @@ out:
 
 static void show_version_and_exit(void)
 {
-	printf(PACKAGE_STRING "\n built on " __DATE__ "\n features:"
+	printf( "\n built on " __DATE__ "\n features:"
 #if defined(USE_ASM) && defined(__i386__)
 		" i386"
 #endif
