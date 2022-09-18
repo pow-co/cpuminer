@@ -1374,6 +1374,10 @@ static bool stratum_notify(struct stratum_ctx *sctx, json_t *params)
 	if (!sctx->job.job_id || strcmp(sctx->job.job_id, job_id))
 		memset(sctx->job.xnonce2, 0, sctx->xnonce2_size);
 	hex2bin(sctx->job.xnonce2 + sctx->xnonce2_size, coinb2, coinb2_size);
+    
+    char *coinbase_str = abin2hex(sctx->job.coinbase, sctx->job.coinbase_size);
+    applog(LOG_DEBUG, "DEBUG: coinbase = '%s'", coinbase_str);
+    free(coinbase_str);
 
 	free(sctx->job.job_id);
 	sctx->job.job_id = strdup(job_id);

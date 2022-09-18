@@ -1086,11 +1086,21 @@ static void stratum_gen_work(struct stratum_ctx *sctx, struct work *work)
 	memcpy(work->xnonce2, sctx->job.xnonce2, sctx->xnonce2_size);
 
 	/* Generate merkle root */
+    
+    char *coinbase_str = abin2hex(sctx->job.coinbase, sctx->job.coinbase_size);
+    applog(LOG_DEBUG, "DEBUG: about to double sha256d '%s'", coinbase_str);
+    applog(LOG_DEBUG, "DEBUG: merkle count = %u", sctx->job.merkle_count);
+    free(coinbase_str);
+    
 	sha256d(merkle_root, sctx->job.coinbase, sctx->job.coinbase_size);
 	for (i = 0; i < sctx->job.merkle_count; i++) {
 		memcpy(merkle_root + 32, sctx->job.merkle[i], 32);
 		sha256d(merkle_root, merkle_root, 64);
 	}
+    
+    char *root_str = abin2hex(merkle_root, 64);
+    applog(LOG_DEBUG, "DEBUG: merkle root = '%s'", root_str);
+    free(root_str);
 	
 	/* Increment extranonce2 */
 	for (i = 0; i < sctx->xnonce2_size && !++sctx->job.xnonce2[i]; i++);
@@ -1106,6 +1116,10 @@ static void stratum_gen_work(struct stratum_ctx *sctx, struct work *work)
 	work->data[18] = le32dec(sctx->job.nbits);
 	work->data[20] = 0x80000000;
 	work->data[31] = 0x00000280;
+    
+    char *work_str = abin2hex((const unsigned char*)work->data, 80);
+    applog(LOG_DEBUG, "DEBUG: work string = '%s'", work_str);
+    free(work_str);
 
 	pthread_mutex_unlock(&sctx->work_lock);
 
@@ -1475,6 +1489,7 @@ static void *stratum_thread(void *userdata)
 			applog(LOG_ERR, "Stratum connection interrupted");
 			continue;
 		}
+		
 		if (!stratum_handle_method(&stratum, s))
 			stratum_handle_response(s);
 		free(s);
